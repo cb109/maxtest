@@ -115,34 +115,43 @@
 			 *	Collect Test Suite names from a file stream.
 			 *	This function doesn't close the filestream.
 			 */
+			local structnames = #()
+			local pattern = @"struct\s+(" + this.structPattern + @"\w+)\s*\("
+			local regex = dotnetObject "System.Text.RegularExpressions.Regex" pattern
 
-			local structNames = #()
-
-			seek fstream 0
-
-			while skipToString fstream ("struct " + this.structPattern) != undefined do
-			(
-				local structName = ""
-				local afterPatternPos = filePos fstream
-
-				-- Move cursor back to begin of struct name
-				seek fstream (afterPatternPos - this.structPattern.count - 1)
-
-				do
-				(
-					char = readChar fstream
-					-- Don't add special characters
-					if not isSpace char then
-					(
-						structName += char
-					)
-				)
-				while not isNameComplete char structName
-
-				Append structNames structName
+			fn read_filestream fstream = (
+				seek fstream #eof
+				local maxlen = filepos fstream
+				seek fstream 0
+				local res = readChars fstream maxlen errorAtEOF:false
+				res
 			)
 
-			structNames
+			local content = read_filestream fstream
+			local matches = regex.Matches content
+			if matches.Count == 0 do
+				return structnames
+			local matches_enum = matches.getEnumerator()
+
+			fn get_struct_name_from_groups groups = (
+			    /***The 1st match group will contain the whole string, so we skip it.
+			    The 2nd match group containts the actual content inside the group's
+			    parentheses from the pattern above, which is the struct name we are
+			    looking for.***/
+			    local group_enum = groups.GetEnumerator()
+			    group_enum.moveNext()
+			    group_enum.moveNext()
+			    local structname = group_enum.current.Value
+			    structname
+			)
+
+			while matches_enum.moveNext() do (
+			    local match = matches_enum.current
+			    local structname = get_struct_name_from_groups match.Groups
+			    append structnames structname
+			)
+
+			structnames
 		),
 
 
