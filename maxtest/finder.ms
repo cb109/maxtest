@@ -135,7 +135,7 @@
 		    local groupEnum = groups.GetEnumerator()
 		    groupEnum.moveNext()
 		    groupEnum.moveNext()
-		    local structname = group_enum.current.Value
+		    local structname = groupEnum.current.Value
 		    structname
 		),
 
