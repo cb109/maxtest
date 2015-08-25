@@ -7,33 +7,45 @@
  *		Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
  *	THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
+/*
+ *	Class for storing all test suites found inside a test file.
+ *	Test runner uses these information for running the tests.
+ *	@info: all finders must return MAXTestFile objects
+ */
+global MAXTestFile
+struct MAXTestFile
 (
+	public filename = undefined,
 
-	/*
-	 *	Class for storing test suite information.
-	 *	Necessary for the runner to execute the test functions inside a struct.
-	 */
-	global MAXTestSuite
-	struct MAXTestSuite
-	(
-		public structName = "",
-
-		-- <Array of String>
-		public testFnNames = #()
-	)
+	-- <Array of MAXTestSuite>
+	public testSuites = #()
+)
 
 
-	/*
-	 *	Class for storing all test suites found inside a test file.
-	 *	Test runner uses these information for running the tests.
-	 *	@info: all finders must return MAXTestFile objects
-	 */
-	global MAXTestFile
-	struct MAXTestFile
-	(
-		public filename = undefined,
+/*
+ *	Class for storing test suite information.
+ *	Necessary for the runner to execute the test functions inside a struct.
+ */
+global MAXTestSuite
+struct MAXTestSuite
+(
+	public structName = "",
 
-		-- <Array of MAXTestSuite>
-		public testSuites = #()
-	)
+	-- <Array of String>
+	public testFnNames = #()
+)
+
+
+/*
+ *	Class for storing result information of a unit test when run by the Runner.
+ */
+global MAXTestResult
+struct MAXTestResult
+(
+	public fileName = "",
+	public structName = "",
+	public testName = "",
+	public state = undefined, -- -1 == error, 0 == passed, 1 == failed
+	public resultStream = StringStream ""
 )
