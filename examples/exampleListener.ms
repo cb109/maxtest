@@ -1,0 +1,27 @@
+(
+	local currentFilepath = getFilenamePath (getSourceFileName())
+	local rootDir = pathConfig.removePathLeaf currentFilepath
+	local sourceDir = pathConfig.appendPath rootDir "maxtest"
+
+	fileIn (pathConfig.appendPath sourceDir @"assert2.ms")
+	fileIn (pathConfig.appendPath sourceDir @"finder_dircrawler.ms")
+	fileIn (pathConfig.appendPath sourceDir @"runner.ms")
+	fileIn (pathConfig.appendPath sourceDir @"presenter_listener.ms")
+
+
+	-- Gather different finders
+	local finders = #()
+	append finders (::DirCrawler currentFilepath)
+
+	-- Run all finders
+	local tests = #()
+	for finderOn in finders do tests += finderOn.getTests()
+
+	-- Execute runner
+	local testRunner = ::Runner tests
+	local results = testRunner.getResults()
+
+	-- Display results
+	local presenter = ::PresenterListener results
+	presenter.show()
+)
