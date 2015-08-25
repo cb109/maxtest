@@ -835,6 +835,6 @@
 -- 	global ed = MxsEditorControl()
 -- 	ed.findText "inText\s=" regexp:true
 
-	MxsEditorControl
+	global MxsEditorControl
 )
 
