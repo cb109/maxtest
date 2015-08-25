@@ -30,7 +30,7 @@ struct TestPassedExamples
 		(
 			throw "error"
 		)
-		
+
 		local exceptionPattern = "*error*"
 		assert2.raises exceptionPattern dummyFn
 	),
@@ -39,7 +39,7 @@ struct TestPassedExamples
 	function test_notRaises =
 	(
 		function dummyFn = ()
-		
+
 		assert2.notRaises dummyFn
 	)
 )
@@ -77,7 +77,7 @@ struct TestFailureExamples
 		(
 			throw "error"
 		)
-		
+
 		local exceptionPattern = "*failure*"
 		assert2.raises exceptionPattern dummyFn
 	),
@@ -89,7 +89,7 @@ struct TestFailureExamples
 		(
 			throw "error"
 		)
-		
+
 		assert2.notRaises dummyFn
 	)
 )
