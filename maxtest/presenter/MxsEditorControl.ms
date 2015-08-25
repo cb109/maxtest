@@ -2,7 +2,7 @@
 	struct ScintillaConstants
 	(
 		--detailed informaion about the command can be found here: http://www.scintilla.org/ScintillaDoc.html
-		
+
 		public _INVALID_POSITION 					= -1,
 		public _SCI_START 							= 2000,
 		public _SCI_OPTIONAL_START 					= 3000,
@@ -659,26 +659,26 @@
 		public _SCN_AUTOCSELECTION 					= 2022
 	)
 
-	
-	struct MxsEditorControl 
+
+	struct MxsEditorControl
 	(
 		private _MXSSciTEWindowHwnd = undefined,
 		private _MXSScintillaHwnd = undefined,
-		
+
 		private _sciConsts = ScintillaConstants(),
-		
-		
+
+
 		private
 		function toDotNetPointer val =
 		(
 			return (dotNetObject "System.IntPtr" val)
 		),
 
-		
+
 		private
 		function getMXSSciTEWindowHwnd =
 		(
-			if _MXSSciTEWindowHwnd == undefined then 
+			if _MXSSciTEWindowHwnd == undefined then
 			(
 				local desktopChildren = windows.getChildrenHWND (windows.getDesktopHWND())
 				local hwnd = undefined
@@ -691,14 +691,14 @@
 			)
 			return _MXSSciTEWindowHwnd
 		),
-		
+
 		private
 		function getMXSScintillaHwnd =
 		(
 			if _MXSScintillaHwnd == undefined then
 			(
 				local MXSSciTEWindowHwnd = getMXSSciTEWindowHwnd()
-				if MXSSciTEWindowHwnd != undefined then 
+				if MXSSciTEWindowHwnd != undefined then
 				(
 					local editorChildren = windows.getChildrenHWND MXSSciTEWindowHwnd
 					local hwnd = undefined
@@ -714,58 +714,58 @@
 			)
 			return _MXSScintillaHwnd
 		),
-		
-		
-		
+
+
+
 		private
 		function sendCommandToScintilla inCommand inLParam inWParam =
 		(
 			local hwnd = getMXSScintillaHwnd()
 			windows.sendMessage hwnd inCommand inLParam inWParam
 		),
-		
-		
-		
+
+
+
 		public
 		function gotoLine inLineNumber =
 		(
 			return (sendCommandToScintilla _sciConsts._SCI_GOTOLINE (inLineNumber - 1) 0)
 		),
-		
+
 		public
 		function gotoPos inPos =
 		(
 			return (sendCommandToScintilla _sciConsts._SCI_GOTOPOS inPos 0)
 		),
-		
+
 		public
 		function getTextLength =
 		(
 			return (sendCommandToScintilla _sciConsts._SCI_GETTEXTLENGTH 0 0)
 		),
-		
-		
+
+
 		public
 		function getCodePage =
 		(
 			return (sendCommandToScintilla _sciConsts._SCI_GETCODEPAGE 0 0)
 		),
-		
-		
+
+
 		public
 		function getFocus =
 		(
 			return (sendCommandToScintilla _sciConsts._SCI_GETFOCUS 0 0)
 		),
-		
+
 		public
 		function setFocus inFocus =
 		(
 			local focus = if inFocus == true then 1 else 0
 			return (sendCommandToScintilla _sciConsts._SCI_SETFOCUS focus 0)
 		),
-		
-		
+
+
 		public
 		function findText inText rangeStart: rangeEnd: down:true wholeWord:false matchCase:false wordStart:false regexp:false posix:false =
 		(
@@ -776,26 +776,26 @@
 			if wordStart then 	searchFlags += _sciConsts._SCFIND_WORDSTART
 			if regexp then 		searchFlags += _sciConsts._SCFIND_REGEXP
 			if posix then 		searchFlags += _sciConsts._SCFIND_POSIX
-			
+
 			-- Convert the search string to a byte array.
 			inText = inText as string
 			local str = dotNetObject "System.String" inText
-			
+
 			if not isKindOf rangeStart integer then
 				rangeStart = 0
 			if not isKindOf rangeEnd integer then
 				rangeEnd = getTextLength()
-			
+
 			local marshal = dotNetClass "System.Runtime.InteropServices.Marshal"
 			local longSize = 4 -- 4 bytes
 			local ptrSize = marshal.SizeOf (dotNetObject "System.IntPtr" 0)
-			
-			-- Since max 2013 (max version 15) the 
+
+			-- Since max 2013 (max version 15) the
 			if (maxVersion())[1] < 15000 then
 				local strPtr = toDotNetPointer (marshal.StringToHGlobalAnsi str)
 			else
 				local strPtr = toDotNetPointer (marshal.StringToHGlobalUni str)
-			
+
 			-- The struct that scintilla needs is:
 			-- Search range start - long (4 bytes)
 			-- Search range end - long (4 bytes)
@@ -805,7 +805,7 @@
 			local numberOfLongsInStruct = 4
 			local ptr = marshal.AllocCoTaskMem  ((numberOfLongsInStruct * longSize) + ptrSize)
 			local p = copy ptr
-			
+
 			marshal.WriteInt32 (toDotNetPointer p) rangeStart
 			p += longSize
 			marshal.WriteInt32 (toDotNetPointer p) rangeEnd
@@ -815,26 +815,26 @@
 			marshal.WriteInt32 (toDotNetPointer p) 0
 			p += longSize
 			marshal.WriteInt32 (toDotNetPointer p) 0
-			
+
 			-- Call the scintilla findText command
 			sendCommandToScintilla _sciConsts._SCI_FINDTEXT searchFlags ptr
-			
+
 			local p = copy ptr
 			p += (2 * longSize) + ptrSize
 			local resultStart = marshal.ReadInt32 (toDotNetPointer p)
 			p += longSize
 			local resultEnd = marshal.ReadInt32 (toDotNetPointer p)
-			
+
 		 	Marshal.FreeHGlobal strPtr
 		 	Marshal.FreeCoTaskMem (toDotNetPointer ptr)
 			return (dataPair findStart:resultStart findEnd:resultEnd)
 		)
-		
-		
+
+
 	)
 -- 	global ed = MxsEditorControl()
 -- 	ed.findText "inText\s=" regexp:true
-	
+
 	MxsEditorControl
 )
 
