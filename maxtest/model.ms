@@ -13,7 +13,6 @@
  *	Test runner uses these information for running the tests.
  *	@info: all finders must return MAXTestFile objects
  */
-global MAXTestFile
 struct MAXTestFile
 (
 	public filename = undefined,
@@ -27,7 +26,6 @@ struct MAXTestFile
  *	Class for storing test suite information.
  *	Necessary for the runner to execute the test functions inside a struct.
  */
-global MAXTestSuite
 struct MAXTestSuite
 (
 	public structName = "",
@@ -40,7 +38,6 @@ struct MAXTestSuite
 /*
  *	Class for storing result information of a unit test when run by the Runner.
  */
-global MAXTestResult
 struct MAXTestResult
 (
 	public fileName = "",

@@ -16,7 +16,6 @@ fileIn "model.ms"
  *	returns the found tests as objects the runner can use to execute the tests.
  *	@info: finders need to support getTests() which need to return MaxTestFile objects.
  */
-global DirCrawler
 struct DirCrawler
 (
 	-- Members
