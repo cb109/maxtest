@@ -8,6 +8,9 @@
  *	THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+fileIn "mxseditorcontrol.ms"
+
+
 /*
  *	PresenterListener is a presenter which prints results returned by the MAXTest Runner to the listener.
  */
@@ -16,10 +19,6 @@ struct PresenterInteractive
 
 	-- Members
 	public results = #(),
-
-	private mxsEditorControl = try(fileIn (getFilenamePath (getThisScriptFilename()) + "MxsEditorControl.ms"))catch(),
-	private _mxsEditorControl = try(this.mxsEditorControl()) catch(),
-
 
 	private _groupingMode = #result,
 	private _visibleResultStates = #(#Error, #Failure, #Ok),
@@ -404,16 +403,16 @@ a){var b=F.exec(a);b&&(b[1]=(b[1]||\"\").toLowerCase(),b[3]=b[3]&&new RegExp(\"(
 			edit result.fileName
 
 			-- Try to go to the funtion definition:
-			if _mxsEditorControl != undefined then
+			if MxsEditorControl != undefined then
 			(
 				windows.processPostedMessages()
-				_mxsEditorControl.setFocus true
-				local findResult = _mxsEditorControl.findText ("struct\\s+" + result.structName) regexp:true
+				MxsEditorControl.setFocus true
+				local findResult = MxsEditorControl.findText ("struct\\s+" + result.structName) regexp:true
 				if findResult.findStart > 0 and findResult.findEnd > 0 then
 				(
-					findResult = _mxsEditorControl.findText ("function\\s+" + result.testName + ".*=") rangeStart:findResult.findEnd regexp:true
+					findResult = MxsEditorControl.findText ("function\\s+" + result.testName + ".*=") rangeStart:findResult.findEnd regexp:true
 					if findResult.findStart > 0 and findResult.findEnd > 0 then
-						_mxsEditorControl.gotoPos findResult.findStart
+						MxsEditorControl.gotoPos findResult.findStart
 				)
 			)
 		)
