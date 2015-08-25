@@ -6,7 +6,7 @@ fileIn "model.ms"
  *	Runner needs custom asserts, like assertEqual.
  *	Runner distinguishes between a test which passes, fails or errors.
  */
-struct Runner
+struct RunnerUnittest
 (
 	-- Members
 	public tests = #(),
