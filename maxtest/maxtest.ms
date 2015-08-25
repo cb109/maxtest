@@ -12,15 +12,16 @@ fileIn "presenter_junitxml.ms"
  */
 struct maxtest
 (
+    public
     function run directory
-                 finder:#dircrawler
-                 runner:#unittest
-                 presenter:#interactive =
+        finder:#dircrawler
+        runner:#unittest
+        presenter:#interactive
+        xmlfile:undefined =
     (
         case finder of (
             (#dircrawler) : (finder = DirCrawler directory)
         )
-
         local tests = finder.getTests()
 
         case runner of (
@@ -31,7 +32,11 @@ struct maxtest
         case presenter of (
             (#listener)    : (presenter = PresenterListener results)
             (#interactive) : (presenter = PresenterInteractive results)
-            (#junitxml)    : (presenter = PresenterJUnitXml results directory)
+            (#junitxml)    : (
+                if xmlfile == undefined do
+                    throw "maxtest: You must set an xmlfile when using JUnit output."
+                presenter = PresenterJUnitXml results xmlfile
+            )
 
         )
         presenter.show()
@@ -43,3 +48,5 @@ global maxtest = maxtest()
 
 -- examplesdir = pathConfig.appendPath (pathConfig.removePathLeaf (getFileNamePath (getThisScriptFilename()))) @"examples"
 -- maxtest.run examplesdir
+-- maxtest.run examplesdir presenter:#listener
+-- maxtest.run examplesdir presenter:#junitxml xmlfile:(pathConfig.appendPath examplesdir "maxtest.xml")
