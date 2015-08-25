@@ -10,10 +10,6 @@
 
 (
 
-
-	local mxsEditorControl = try(fileIn (getFilenamePath (getThisScriptFilename()) + "MxsEditorControl.ms"))catch()
-
-
 	/*
 	 *	PresenterListener is a presenter which prints results returned by the MAXTest Runner to the listener.
 	 */
@@ -25,8 +21,8 @@
 		-- Members
 		public results = #(),
 
-
-		private _mxsEditorControl = try(mxsEditorControl()) catch(),
+		private mxsEditorControl = try(fileIn (getFilenamePath (getThisScriptFilename()) + "MxsEditorControl.ms"))catch(),
+		private _mxsEditorControl = try(this.mxsEditorControl()) catch(),
 
 
 		private _groupingMode = #result,
