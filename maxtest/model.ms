@@ -22,6 +22,7 @@ struct MAXTestSuite
 
 	-- <Array of String>
 	public testFnNames = #()
+	public filePath = ""
 )
 
 

@@ -187,29 +187,31 @@ struct DirCrawler
 
 		local tests = #()
 
-		for fileOn in files do
+		for filePath in files do
 		(
-			local fstream = openFile fileOn mode:"r"
+			local fstream = openFile filePath mode:"r"
 			local structNames = getTestSuiteNamesFromFileStream fstream
 			close fstream
 
 			if structNames.count > 0 then
 			(
-				fileIn fileOn
+				fileIn filePath
 
 				local suites = #()
-				for structNameOn in structNames do
+				for structName in structNames do
 				(
 					-- Execute struct to get aware of methods
 					local ssProperty = StringStream ""
-					showProperties (execute structNameOn) to:ssProperty
+					showProperties (execute ("::" + structName)) to:ssProperty
 
 					local testFnNames = getTestFnNamesFromPropertyStream ssProperty
 
-					Append suites (MAXTestSuite structName:structNameOn testFnNames:testFnNames)
+					local testSuite = MAXTestSuite structName:structName testFnNames:testFnNames filePath:filePath
+					Append suites testSuite
 				)
 
-				Append tests (MAXTestFile fileOn suites)
+				local testFile = MAXTestFile filePath suites
+				Append tests testFile
 			)
 		)
 
