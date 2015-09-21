@@ -1,3 +1,6 @@
+fileIn @"model.ms"
+
+
 /*
  *  KeyExpressionParser is a module that can select strings (in
  *  this case testnames) that match a given keyword expression.
@@ -100,6 +103,8 @@ struct KeyExpressionParser
          *  expression for string-inclusion in the combined name of the testCase
          *  and evaluating the result of the substituted expression.
          */
+        local matches = #()
+
         for testCase in testCases do (
             local testName = this.getCombinedTestName testCase
             local testName = toLower testName
@@ -113,13 +118,20 @@ struct KeyExpressionParser
                 append tokenValuePairs pair
             )
             local subsExpr = this.substituteTokens expr tokenValuePairs
-            local result = this.asBoolean subsExpr
+            local matched = this.asBoolean subsExpr
 
+            -- REMOVEME
             format "orig. expr: %\n" expr
             format "subs. expr: %\n" subsExpr
             format "% : %\n" testName result
             format "\n"
+
+            if matched do (
+                append matches testCase
+            )
         )
+
+        matches
     )
 )
 
@@ -143,5 +155,8 @@ struct KeyExpressionParser
     )
 
     local parser = KeyExpressionParser()
-    parser.matchTests testcases key_expr
+    local matches = parser.matchTests testcases key_expr
+
+    for match in matches do
+        print match
 )
