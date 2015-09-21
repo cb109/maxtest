@@ -21,8 +21,19 @@ struct MAXTestSuite
 	public structName = "",
 
 	-- <Array of String>
-	public testFnNames = #()
+	public testFnNames = #(),
 	public filePath = ""
+)
+
+
+/*
+ *	Class for storing test case information.
+ *	This wraps a test function that is part of a MAXTestSuite.
+ */
+struct MAXTestCase
+(
+	public testFnName = "",
+	public testSuite = undefined
 )
 
 
