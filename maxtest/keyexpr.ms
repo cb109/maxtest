@@ -2,13 +2,16 @@ fileIn @"model.ms"
 
 
 /*
- *  KeyExpressionParser is a module that can select strings (in
+ *  KeyExpressionMatcher is a module that can select strings (in
  *  this case testnames) that match a given keyword expression.
  *
- *  Returns the matching tests as objects the runner can use to execute the tests.
+ *  Returns matching tests as objects the runner can use to execute the tests.
  */
-struct KeyExpressionParser
+struct KeyExpressionMatcher
 (
+
+    private _ignoredTokens =  #("and", "or", "not", ""),
+
     public
     function getCombinedTestName testCase =
     (
@@ -31,11 +34,10 @@ struct KeyExpressionParser
         /*
          *  <Array of String>getTokens <String>expr
          *  Gets a keyword expression and returns all valid keywords.
+         *  Note: Is not case-sensitive.
          */
-        local nothing = ""
         local space = " "
         local replaceThese = #("(", ")")
-        local ignored = #("and", "or", "not", nothing)
 
         -- Replace all parentheses by spaces and split by that.
         expr = toLower expr
@@ -49,7 +51,7 @@ struct KeyExpressionParser
         for rawToken in rawTokens do (
             local skip = false
             local token = rawToken
-            for ignore in ignored do (
+            for ignore in this._ignoredTokens do (
                 if ignore == token do (
                     skip = true
                     continue
@@ -74,6 +76,9 @@ struct KeyExpressionParser
          *  used for substitution. Returns the complete substituted
          *  expression, ready for evaluation.
          *
+         * TODO: We need to protect ignored tokens from substitution
+         *  e.g. to prevent turning expr 'not no' into 'falset false'.
+         *
          */
         for pair in tokenValuePairs do (
             local token = pair[1]
@@ -89,8 +94,16 @@ struct KeyExpressionParser
         /*
          *  <BooleanClass>asBoolean <String>expr
          *  Returns the boolean value of the expression.
+         *  Note: An invalid expression will evaluate to false.
          */
-        (execute expr) as BooleanClass
+        try (
+            local val = (execute expr) as BooleanClass
+            return val
+        )
+        catch()
+
+        format "%\n" ("Expression is invalid: "  + expr as string)
+        false
     ),
 
 
@@ -103,6 +116,7 @@ struct KeyExpressionParser
          *  expression for string-inclusion in the combined name of the testCase
          *  and evaluating the result of the substituted expression.
          */
+        expr = toLower expr
         local matches = #()
 
         for testCase in testCases do (
@@ -119,15 +133,12 @@ struct KeyExpressionParser
             )
             local subsExpr = this.substituteTokens expr tokenValuePairs
             local matched = this.asBoolean subsExpr
-
-            -- REMOVEME
-            format "orig. expr: %\n" expr
-            format "subs. expr: %\n" subsExpr
-            format "% : %\n" testName result
-            format "\n"
-
-            if matched do (
+            if matched then (
+                format "%\n" ("Selecting " + testName)
                 append matches testCase
+            )
+            else (
+                format "%\n" ("Deselecting " + testName)
             )
         )
 
@@ -137,26 +148,28 @@ struct KeyExpressionParser
 
 
 
--- Testing:
-(
---     local key_expr = "(clang and dang or (not foo) or zip)not(lol and kek)and bur "
-    local key_expr = "(foo or bar) and (not baz)"
-    local tests = #(#("test_things", "TestFoo", "test_foo"),
-                    #("test_things", "TestFoo", "test_bar"),
-                    #("test_things", "TestBar", "test_foo"),
-                    #("test_things", "TestFoo", "test_baz"),
-                    #("test_things", "TestBaz", "test_foo"))
+-- -- Testing:
+-- (
+-- --     local key_expr = "(clang and dang or (not foo) or zip)not(lol and kek)and bur "
+-- --     local key_expr = "(foo or bar) and (not baz)"
+-- --     local key_expr = "(not baz)"
+--     local key_expr = "(not no)"
+--     local tests = #(#("test_things", "TestFoo", "test_foo"),
+--                     #("test_things", "TestFoo", "test_bar"),
+--                     #("test_things", "TestBar", "test_foo"),
+--                     #("test_things", "TestFoo", "test_baz"),
+--                     #("test_things", "TestBaz", "test_foo"))
 
-    local testcases = #()
-    for test in tests do (
-        local testsuite = MAXTestSuite test[2] filePath:test[1]
-        local testcase = MAXTestCase test[3] testSuite:testSuite
-        append testcases testcase
-    )
+--     local testcases = #()
+--     for test in tests do (
+--         local testsuite = MAXTestSuite test[2] filePath:test[1]
+--         local testcase = MAXTestCase test[3] testSuite:testSuite
+--         append testcases testcase
+--     )
 
-    local parser = KeyExpressionParser()
-    local matches = parser.matchTests testcases key_expr
+--     local matcher = KeyExpressionMatcher()
+--     local matches = matcher.matchTests testcases key_expr
 
-    for match in matches do
-        print match
-)
+--     for match in matches do
+--         print match
+-- )
