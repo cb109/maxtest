@@ -430,7 +430,7 @@ a){var b=F.exec(a);b&&(b[1]=(b[1]||\"\").toLowerCase(),b[3]=b[3]&&new RegExp(\"(
 
 			local newMAXTestSuite = MAXTestSuite structName:result.structName testFnNames:#(result.testName)
 			local newMAXTestFile = MAXTestFile filename:result.fileName testSuites:#(newMAXTestSuite)
-			local newRunner = Runner #(newMAXTestFile)
+			local newRunner = RunnerUnittest #(newMAXTestFile)
 			local newResults = newRunner.getResults()
 
 			results[resultIndex] = newResults[1]
