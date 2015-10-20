@@ -1,10 +1,12 @@
 fileIn "model.ms"
+fileIn "keyexpr.ms"
 
 
 /*
- *	DirCrawler is a finder which finds unittests recursively in a folder structure and
- *	returns the found tests as objects the runner can use to execute the tests.
- *	@info: finders need to support getTests() which need to return MaxTestFile objects.
+ *	DirCrawler is a finder which finds unittests recursively in a folder
+ *  structure and returns the found tests as objects the runner can use
+ *  to execute the tests. Finders need to support getTests() which need
+ *  to return MaxTestFile objects.
  */
 struct DirCrawler
 (
@@ -13,6 +15,7 @@ struct DirCrawler
 	public filePattern = "*test_*.ms",
 	public structPattern = "Test",
 	public fnPattern = "test_",
+	public key = undefined,
 
 
 	-- Methods
@@ -187,33 +190,83 @@ struct DirCrawler
 
 		local tests = #()
 
-		for fileOn in files do
+		for filePath in files do
 		(
-			local fstream = openFile fileOn mode:"r"
+			local fstream = openFile filePath mode:"r"
 			local structNames = getTestSuiteNamesFromFileStream fstream
 			close fstream
 
 			if structNames.count > 0 then
 			(
-				fileIn fileOn
+				fileIn filePath
 
 				local suites = #()
-				for structNameOn in structNames do
+				for structName in structNames do
 				(
 					-- Execute struct to get aware of methods
 					local ssProperty = StringStream ""
-					showProperties (execute structNameOn) to:ssProperty
+					showProperties (execute ("::" + structName)) to:ssProperty
 
 					local testFnNames = getTestFnNamesFromPropertyStream ssProperty
 
-					Append suites (MAXTestSuite structName:structNameOn testFnNames:testFnNames)
+					local testSuite = MAXTestSuite structName:structName testFnNames:testFnNames filePath:filePath
+					Append suites testSuite
 				)
 
-				Append tests (MAXTestFile fileOn suites)
+				local testFile = MAXTestFile filePath suites
+				Append tests testFile
 			)
 		)
 
 		tests
+	),
+
+
+	private
+	function selectTestsByExpression tests expr =
+	(
+		/*
+		 *	<Array of MAXTestFile>selectTestsByExpression
+		 *	Returns tests after selection only those that match the
+		 *  given key expression (the returned array is rebuild from the
+		 *  matches). They key must be a maxscript expression that
+		 *  specifies which keywords the test's file, struct and test
+		 *  name must include. It is tested against it like:
+		 *
+		 *  <testfile>.<testsuite>.<testcase>
+		 *
+		 */
+		local filteredTests = #()
+		local matcher = KeyExpressionMatcher()
+
+		for testFile in tests do (
+			local filteredTestFile = MAXTestFile testFile.filename #()
+
+			for testSuite in testFile.testSuites do (
+				local filteredTestSuite = MAXTestSuite testSuite.structName #() testSuite.filePath
+
+				for testFnName in testSuite.testFnNames do (
+					local testCase = MAXTestCase testFnName testSuite
+					local matches = matcher.matchTests #(testCase) expr
+					local testMatched = matches.count == 1
+					if testMatched do (
+						append filteredTestSuite.testFnNames testFnName
+					)
+				)
+
+				local suiteNotEmpty = filteredTestSuite.testFnNames.count > 0
+				if suiteNotEmpty do (
+					append filteredTestFile.testSuites filteredTestSuite
+				)
+			)
+
+			local fileNotEmpty = filteredTestFile.testSuites.count > 0
+			if fileNotEmpty do (
+				append filteredTests filteredTestFile
+			)
+		)
+
+		filteredTests
 	),
 
 
@@ -224,8 +277,13 @@ struct DirCrawler
 		 *	<Array of MAXTestFile>getTests
 		 *	Returns tests found in and under the filepath.
 		 */
-
 		local files = this.findFiles()
-		this.gatherTests files
+		local tests = this.gatherTests files
+
+		local selectByKey = this.key != undefined
+		if selectByKey do (
+			tests = this.selectTestsByExpression tests this.key
+		)
+		tests
 	)
 )
