@@ -9,7 +9,6 @@ fileIn @"model.ms"
  */
 struct KeyExpressionMatcher
 (
-
     private _ignoredTokens =  #("and", "or", "not", ""),
 
     public
@@ -94,8 +93,14 @@ struct KeyExpressionMatcher
         /*
          *  <BooleanClass>asBoolean <String>expr
          *  Returns the boolean value of the expression.
-         *  Note: An invalid expression will evaluate to false.
+         *  Note: An empty expression will evaluate to true.
+         *  An invalid expression will evaluate to false.
          */
+        expr = trimRight (trimLeft expr)
+        if expr == "" do (
+            return true
+        )
+
         try (
             local val = (execute expr) as BooleanClass
             return val
