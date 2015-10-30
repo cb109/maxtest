@@ -57,7 +57,7 @@ struct MAXTestLogger
          * Message is formatted using current time, logger name and text.
          */
         local message = StringStream ""
-        format "% [%] %: %\n" localTime this.name_ level text_ to:message
+        format "% [%] %: %" localTime this.name_ level text_ to:message
         message = message as string
         case channel of
         (
@@ -65,7 +65,7 @@ struct MAXTestLogger
             #stderr : (this._stderr.print message)
             default : ()  -- Do nothing.
         )
-        format "%" message
+        format "%\n" message
     ),
 
 
