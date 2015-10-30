@@ -32,6 +32,7 @@ struct MAXTestLogger
     }
     ",
 
+
     private
     function createAssembly code className =
     (
@@ -42,8 +43,10 @@ struct MAXTestLogger
         compiled.CompiledAssembly.CreateInstance className
     ),
 
+
     private _stdout = createAssembly this._cSharpCode "StdOutPrinter",
     private _stderr = createAssembly this._cSharpCode "StdErrPrinter",
+
 
     private
     function _log text_ level channel:this.defaultChannel =
