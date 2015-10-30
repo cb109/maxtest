@@ -1,4 +1,5 @@
 fileIn "model.ms"
+fileIn "logger.ms"
 
 
 /*
@@ -10,8 +11,9 @@ struct RunnerUnittest
 (
 	-- Members
 	public tests = #(),
-	private _results = #(),
 
+	private _results = #(),
+	private _log = MAXTestLogger "maxtest.runner",
 
 	-- Methods
 	private
@@ -21,6 +23,7 @@ struct RunnerUnittest
 		 *	<Instance of struct suiteName>initSuite <String>suiteName
 		 *	Returns an instance of the struct with suiteName, on execption returns undefined.
 		 */
+		this._log.debug ("Initialize testsuite: " + suiteName as string)
 
 		local suite = undefined
 
@@ -46,6 +49,7 @@ struct RunnerUnittest
 		 *	Returns a pointer to the static method of name testFnName inside the class of name suiteName.
 		 *	Returns undefined on exception.
 		 */
+		this._log.debug ("Initialize testcase: " + testFnName as string)
 
 		local testFn = undefined
 
@@ -82,6 +86,8 @@ struct RunnerUnittest
 		 *	<Void>runTest <String>testFnName <String>structName <Struct Instance>suiteInstance
 		 *	Runs a single test and stores the result object on the runner instance.
 		 */
+		local testName = structName as string + "." + testFnName as string
+		this._log.info ("Run test: " + testName)
 
 		local state = #Ok
 		local ssResult = StringStream ""
@@ -122,7 +128,7 @@ struct RunnerUnittest
 					throw()
 				)
 
-				local exceptionStr = getCurrentException()
+				local exceptionStr = (getCurrentException()) as string
 
 				format "%\n" exceptionStr to:ssResult
 
@@ -150,9 +156,13 @@ struct RunnerUnittest
 		)
 		else
 		(
-			print "Error while initializing testFn." to:ssResult
+			local errorMessage = "Error while initializing testFn."
+			this._log.error errorMessage
+			print errorMessage to:ssResult
 			state = #Error
 		)
+
+		this._log.info ("Test result is: " + state as string)
 
 		resultObj.resultStream = ssResult
 		resultObj.state = state
@@ -168,6 +178,7 @@ struct RunnerUnittest
 		 *	<Void>runSuite <String>structName <Array of String>testFnNames
 		 *	Runs a test suite of name structName by executing all methods inside testFnNames.
 		 */
+		this._log.info ("Run testsuite: " + structName as string)
 
 		local suiteObj = initSuite structName
 		local results = #()

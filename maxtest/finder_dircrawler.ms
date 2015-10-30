@@ -1,5 +1,6 @@
 fileIn "model.ms"
 fileIn "keyexpr.ms"
+fileIn "logger.ms"
 
 
 /*
@@ -17,6 +18,7 @@ struct DirCrawler
 	public fnPattern = "test_",
 	public key = undefined,
 
+	private _log = MAXTestLogger "maxtest.finder",
 
 	-- Methods
 	private
@@ -284,6 +286,18 @@ struct DirCrawler
 		if selectByKey do (
 			tests = this.selectTestsByExpression tests this.key
 		)
+
+		-- Log number of tests that have been found (that match filter).
+		local testCount = 0
+		for testFile in tests do (
+			for testSuite in testFile.testSuites do (
+				for testCase in testSuite.testFnNames do (
+					testCount += 1
+				)
+			)
+		)
+		this._log.info ("Found " + testCount as string + " tests.")
+
 		tests
 	)
 )

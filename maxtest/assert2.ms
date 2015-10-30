@@ -8,7 +8,7 @@
 
 
 		private
-		function isSciptedStructDefinitionHandlerException exceptionStr =
+		function isScriptedStructDefinitionHandlerException exceptionStr =
 		(
 			/*
 				Tests if a string contains the signature of a exception raised during construction.
@@ -107,7 +107,7 @@
 
 			local listenerContent = getListenerContent()
 
-			if isSciptedStructDefinitionHandlerException listenerContent then
+			if isScriptedStructDefinitionHandlerException listenerContent then
 				throw listenerContent
 		),
 

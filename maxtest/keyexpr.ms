@@ -1,4 +1,5 @@
-fileIn @"model.ms"
+fileIn "model.ms"
+fileIn "logger.ms"
 
 
 /*
@@ -10,6 +11,8 @@ fileIn @"model.ms"
 struct KeyExpressionMatcher
 (
     private _ignoredTokens =  #("and", "or", "not", ""),
+    private _log = MAXTestLogger "maxtest.matcher",
+
 
     public
     function getCombinedTestName testCase =
@@ -107,7 +110,7 @@ struct KeyExpressionMatcher
         )
         catch()
 
-        format "%\n" ("Expression is invalid: "  + expr as string)
+        this._log.warn ("Expression is invalid: "  + expr as string)
         false
     ),
 
@@ -139,11 +142,11 @@ struct KeyExpressionMatcher
             local subsExpr = this.substituteTokens expr tokenValuePairs
             local matched = this.asBoolean subsExpr
             if matched then (
-                format "%\n" ("Selecting " + testName)
+                this._log.info ("Selecting " + testName)
                 append matches testCase
             )
             else (
-                format "%\n" ("Deselecting " + testName)
+                this._log.info ("Deselecting " + testName)
             )
         )
 
