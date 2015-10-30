@@ -1,4 +1,5 @@
 fileIn "model.ms"
+fileIn "logger.ms"
 
 
 /*
@@ -11,7 +12,6 @@ struct RunnerUnittest
 	-- Members
 	public tests = #(),
 	private _results = #(),
-
 
 	-- Methods
 	private
@@ -122,7 +122,7 @@ struct RunnerUnittest
 					throw()
 				)
 
-				local exceptionStr = getCurrentException()
+				local exceptionStr = (getCurrentException()) as string
 
 				format "%\n" exceptionStr to:ssResult
 
