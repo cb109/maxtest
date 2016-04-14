@@ -10,7 +10,6 @@
 # Maintainers
 
 - [Christoph Bülter](http://www.cbuelter.de)
-- [Henry Weickert](http://www.imdb.com/name/nm3031532)
 
 ---
 
